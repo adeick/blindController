@@ -146,9 +146,9 @@ const TLA = () => {
 
     const getChanges = () => {
         // GET request using fetch inside useEffect React hook
-        //fetch('http://sddec22-11.ece.iastate.edu:8080/blinds')
-        //    .then(response => response.json())
-        //    .then(data => dispatch(updateBlinds((data.total)))); //TODO
+        // fetch('http://sddec22-11.ece.iastate.edu:8080/blinds')
+        //     .then(response => response.json())
+        //     .then(data => dispatch(updateBlinds((data.total)))); //TODO
     }
 
     const rowColumn = useBreakpointValue({ base: 'row', md: 'column' });
