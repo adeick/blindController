@@ -34,13 +34,16 @@ import Footer from '/components/Footer';
 import mapboxgl from 'mapbox-gl';
 
 import { useSelector, useDispatch } from 'react-redux';
-import { updateBlinds } from "/store/blinds/action";
+import updateBlinds from "/store/blinds/action";
 
 import { signIn, signOut, useSession } from 'next-auth/react'
 
 
 const useTLA = () => {
-    const tlaBlinds = useSelector((state) => state.blinds.tlaBlinds);
+    const tlaBlinds = useSelector((state) => state.blinds);
+    console.log("TLA Blinds: ");
+    console.log(tlaBlinds);
+
     return { tlaBlinds };
 }
 
@@ -61,7 +64,12 @@ const TLA = () => {
     const [dimConfirmation, setDimConfirmation] = useState(false);
     const [openConfirmation, setOpenConfirmation] = useState(false);
 
-    const [manualBlinds, setManualBlinds] = useState([...tlaBlinds]);
+    const [manualBlinds, setManualBlinds] = useState(tlaBlinds.map(blind => {
+        return blind.blindsPos;
+    }));
+
+    //tlaBlinds: values from database and saved in redux
+    //manualBlinds: array that interacts with sliders in browser
 
     const sliderUpdated = (value, id) => {
         setManualBlinds([...manualBlinds.slice(0, id), value, ...manualBlinds.slice(id + 1)]);
@@ -70,13 +78,8 @@ const TLA = () => {
     const [inTla, setInTla] = useState(false);
     //0 is manual, 1 is closed, 2 is dim, 3 is open
 
-
     mapboxgl.accessToken = process.env.MAPBOX_TOKEN;
 
-    //const southWest = new mapboxgl.LngLat(-94, 42); //testing at towers
-    //const northEast = new mapboxgl.LngLat(-93, 43);
-    //const southWest = new mapboxgl.LngLat(-93.654345, 42.022847); //just on campus
-    //const northEast = new mapboxgl.LngLat(-93.633316, 42.030215);
     const southWest = new mapboxgl.LngLat(-93.652080, 42.028100); //for tla
     const northEast = new mapboxgl.LngLat(-93.650080, 42.028900);
 
@@ -111,11 +114,13 @@ const TLA = () => {
     }, [updated]);
 
     useEffect(() => {
+        console.log("Manual Blinds");
+        console.log(manualBlinds);
         setClosedConfirmation(false);
         setDimConfirmation(false);
         setOpenConfirmation(false);
         for (let i = 0; i < 15; i++) {
-            if (manualBlinds[i] != tlaBlinds[i]) {
+            if (manualBlinds[i] != tlaBlinds[i].blindsPos) {
                 setUpdated(true);
                 return;
             }
@@ -124,31 +129,51 @@ const TLA = () => {
     }, [manualBlinds]);
 
     useEffect(() => {
+        setManualBlinds(tlaBlinds.map(blind => {
+            return blind.blindsPos;
+        }));
+    }, [tlaBlinds]);
+
+    useEffect(() => {
         getChanges();
-    }, []);
+    }, []); //UNCOMMENT, this gets values from database
 
     const applyChanges = (blindArray) => {
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(blindArray)
-        };
-        // fetch('https://reqres.in/api/posts', requestOptions) //TODO
-        //     .then(response => response.json());
+        console.log("Changes Applied");
+        const updatedBlindArray = tlaBlinds.map(blind => {
+            const id = blind.blindsIP.split("sddec22-11-")[1].split(".ece.iastate.edu")[0];
+            // ^ Isolate the number out of the IP address (Expected format: sddec22-11-{#}.ece.iastate.edu)
+            if ((blindArray[id - 1] != null) && blindArray[id - 1] != blind.blindsPos) {
+                const updatedBlind =
+                {
+                    "blindsIP": "sddec22-11-" + (id) + ".ece.iastate.edu",
+                    "blindsPos": (blindArray[id - 1])
+                };
+                return updatedBlind;
+            }
+        });
+        const reducedBlindArray = updatedBlindArray.filter(blind => {
+            if (blind != null) {
+                return blind;
+            }
+        });
 
-        // fetch('http://sddec22-11.ece.iastate.edu:8080/blinds') //Un-comment THIS one
-        //     .then(response => response.json())
-        //     .then(data => dispatch(updateBlinds((data.total)))); //This will be post request not GET request
-        // console.log("HERE!");
-        //dispatch(updateBlinds(blindArray)); //comment this
-        getChanges();
+        const requestOptions = {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ blinds: reducedBlindArray })
+        };
+        fetch('http://sddec22-11.ece.iastate.edu:8080/blindsMove', requestOptions) //TODO
+            //.then(response => response.json())
+            .then(getChanges()); //should getChange be in "then"?
+
     }
 
     const getChanges = () => {
         // GET request using fetch inside useEffect React hook
-        // fetch('http://sddec22-11.ece.iastate.edu:8080/blinds')
-        //     .then(response => response.json())
-        //     .then(data => dispatch(updateBlinds((data.total)))); //TODO
+        fetch('http://sddec22-11.ece.iastate.edu:8080/blinds')
+            .then(response => response.json())
+            .then(data => dispatch(updateBlinds(data)));
     }
 
     const rowColumn = useBreakpointValue({ base: 'row', md: 'column' });
@@ -249,24 +274,24 @@ const TLA = () => {
                                     direction={phone ? "column" : "row"}
                                     alignItems="center" pb="30px">
                                     <Spacer />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} value={tlaBlinds[0]} id={0} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} value={tlaBlinds[1]} id={1} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} value={tlaBlinds[2]} id={2} /><Spacer />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} value={tlaBlinds[3]} id={3} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} value={tlaBlinds[4]} id={4} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} value={tlaBlinds[5]} id={5} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} value={tlaBlinds[6]} id={6} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} value={tlaBlinds[7]} id={7} /><Spacer />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} value={tlaBlinds[8]} id={8} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} value={tlaBlinds[9]} id={9} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} value={tlaBlinds[10]} id={10} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} value={tlaBlinds[11]} id={11} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} value={tlaBlinds[12]} id={12} /><Spacer />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} value={tlaBlinds[13]} id={13} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} value={tlaBlinds[14]} id={14} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[0] ? tlaBlinds[0].blindsPos : 0)} id={0} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[1] ? tlaBlinds[1].blindsPos : 0)} id={1} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[2] ? tlaBlinds[2].blindsPos : 0)} id={2} /><Spacer />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[3] ? tlaBlinds[3].blindsPos : 0)} id={3} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[4] ? tlaBlinds[4].blindsPos : 0)} id={4} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[5] ? tlaBlinds[5].blindsPos : 0)} id={5} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[6] ? tlaBlinds[6].blindsPos : 0)} id={6} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[7] ? tlaBlinds[7].blindsPos : 0)} id={7} /><Spacer />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[8] ? tlaBlinds[8].blindsPos : 0)} id={8} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[9] ? tlaBlinds[9].blindsPos : 0)} id={9} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[10] ? tlaBlinds[10].blindsPos : 0)} id={10} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[11] ? tlaBlinds[11].blindsPos : 0)} id={11} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[12] ? tlaBlinds[12].blindsPos : 0)} id={12} /><Spacer />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[13] ? tlaBlinds[13].blindsPos : 0)} id={13} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[14] ? tlaBlinds[14].blindsPos : 0)} id={14} />
                                     {lastSpacer}
                                 </Flex>
-                                <Button alignSelf="flex-end" right="30px" bottom="15px" my="5px" w="80px" h="40px" variant="solid" title={inTla ? "" : "Must be in TLA"}
+                                <Button alignSelf="flex-end" right="30px" bottom="15px" my="5px" w="100px" h="40px" variant="solid" title={inTla ? "" : "Must be in TLA"}
                                     bg="orange.400" _hover={{ bg: "orange.500" }} _active={{ bg: "orange.600" }} disabled={!updated || !inTla}
                                     /* leftIcon={<Icon as={FaSun} color="yellow.500" />} */
                                     onClick={() => {
@@ -280,7 +305,7 @@ const TLA = () => {
                                     }}
                                 >
                                     <Text color="black">
-                                        Apply
+                                        {!inTla ? "Not in TLA" : "Apply"}
                                     </Text>
                                 </Button>
                             </Flex>

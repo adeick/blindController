@@ -18,15 +18,15 @@ import { useState, useEffect } from 'react';
 const BlindSlider = (props) => {
     //This variable is for ALL sliders, not just this component
     // const [updated, setUpdated] = useState(updateVar);
-    const [sliderValue, setSliderValue] = useState(props.value);
+    const [sliderValue, setSliderValue] = useState(props.TLAvalue);
     const [updated, setUpdated] = useState(false);
 
     useEffect(() => {
-        setSliderValue(props.value);
-    }, [props.value]);
+        setSliderValue(props.TLAvalue);
+    }, [props.TLAvalue]);
 
     let icon;
-    if (sliderValue < 30 || sliderValue > 90) {
+    if (sliderValue < 3.0 || sliderValue > 8) {
         icon =
             <SliderThumb bg="gray.700" boxSize={6}>
                 <Box
@@ -35,7 +35,7 @@ const BlindSlider = (props) => {
                 />
             </SliderThumb>;
     }
-    else if (sliderValue < 45 || sliderValue > 70) {
+    else if (sliderValue < 4.5 || sliderValue > 7.0) {
         icon =
             <SliderThumb bg="gray.600" boxSize={6}>
                 <Box
@@ -59,10 +59,10 @@ const BlindSlider = (props) => {
             <SliderMark value={0} mt='-6' ml={props.phone ? '-5' : '-14'} fontSize='sm' color="black" placement="">
                 Closed
             </SliderMark>
-            <SliderMark value={60} mt='-6' ml={props.phone ? '-5' : '-14'} fontSize='sm' color="black">
+            <SliderMark value={6} mt='-6' ml={props.phone ? '-5' : '-14'} fontSize='sm' color="black">
                 Open
             </SliderMark>
-            <SliderMark value={100} mt='-6' ml={props.phone ? '-5' : '-14'} fontSize='sm' color="black">
+            <SliderMark value={9} mt='-6' ml={props.phone ? '-5' : '-14'} fontSize='sm' color="black">
                 Closed
             </SliderMark>
         </>
@@ -75,12 +75,13 @@ const BlindSlider = (props) => {
         <Box h={props.phone ? "4.5%" : "70%"} w={props.phone ? "70%" : "4%"}>
             <Slider
                 aria-label='slider-ex-3'
+                min={0} max={9}
                 //defaultValue={sliderValue}
                 value={sliderValue}
                 orientation={props.phone ? 'horizontal' : 'vertical'}
                 minH={props.phone ? "40px" : '100px'}
                 minW={props.phone ? '100px' : '10px'}
-                step={10}
+                step={1}
                 onChange={(val) => setSliderValue(val)}
                 onChangeEnd={() => {
                     props.updateVar(sliderValue, props.id);
@@ -88,7 +89,7 @@ const BlindSlider = (props) => {
             >
                 {firstSlider}
                 <SliderTrack bg='red.100'>
-                    <SliderFilledTrack bg={sliderValue == props.value ? 'yellow.500' : 'orange.400'} />
+                    <SliderFilledTrack bg={sliderValue == props.TLAvalue ? 'yellow.500' : 'orange.400'} />
                 </SliderTrack>
                 {icon}
 
