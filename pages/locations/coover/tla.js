@@ -21,6 +21,7 @@ import {
     SliderFilledTrack,
     SliderThumb,
     SliderMark,
+    useToast,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 
@@ -34,29 +35,30 @@ import Footer from '/components/Footer';
 import mapboxgl from 'mapbox-gl';
 
 import { useSelector, useDispatch } from 'react-redux';
-import updateBlinds from "/store/blinds/action";
+// import { updateBlinds, deleteBlinds } from "/store/blinds/action";
 
 import { signIn, signOut, useSession } from 'next-auth/react'
 
 
-const useTLA = () => {
-    const tlaBlinds = useSelector((state) => state.blinds);
-    console.log("TLA Blinds: ");
-    console.log(tlaBlinds);
+// const useTLA = () => {
+//     const tlaBlinds = useSelector((state) => state.blinds);
+//     console.log("TLA Blinds: ");
+//     console.log(tlaBlinds);
 
-    return { tlaBlinds };
-}
+//     return { tlaBlinds };
+// }
 
 const TLA = () => {
-    const { tlaBlinds } = useTLA();
+    // const { tlaBlinds } = useTLA();
     //const initialState = [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60];
     //const { tlaBlinds, setTlaBlinds } = useState(initialState);
     const dispatch = useDispatch();
     const { data: session } = useSession();
 
+    const toast = useToast();
+
     const { colorMode, toggleColorMode } = useColorMode();
     const [windowSize, setWindowSize] = useState(0);
-    const [updated, setUpdated] = useState(false);
     const [preset, setPreset] = useState(0);
     //0 is manual, 1 is closed, 2 is dim, 3 is open
 
@@ -64,18 +66,249 @@ const TLA = () => {
     const [dimConfirmation, setDimConfirmation] = useState(false);
     const [openConfirmation, setOpenConfirmation] = useState(false);
 
-    const [manualBlinds, setManualBlinds] = useState(tlaBlinds.map(blind => {
-        return blind.blindsPos;
-    }));
+    // const [manualBlinds, setManualBlinds] = useState(tlaBlinds.map(blind => {
+    //     return blind.blindsPos;
+    // }));
+
+    const [changedBlinds, setChangedBlinds] = useState([
+        // {
+        //     blindsIP: "sddec22-11-2.ece.iastate.edu",
+        //     blindsPos: 9
+        // }
+    ]);
+    const [browserBlinds, setBrowserBlinds] = useState([
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-1.ece.iastate.edu",
+            blindsPos: -1
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-2.ece.iastate.edu",
+            blindsPos: -1
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-3.ece.iastate.edu",
+            blindsPos: -1
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-4.ece.iastate.edu",
+            blindsPos: -1
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-5.ece.iastate.edu",
+            blindsPos: -1
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-6.ece.iastate.edu",
+            blindsPos: -1
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-7.ece.iastate.edu",
+            blindsPos: -1
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-8.ece.iastate.edu",
+            blindsPos: -1
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-9.ece.iastate.edu",
+            blindsPos: -1
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-10.ece.iastate.edu",
+            blindsPos: -1
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-11.ece.iastate.edu",
+            blindsPos: -1
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-12.ece.iastate.edu",
+            blindsPos: -1
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-13.ece.iastate.edu",
+            blindsPos: -1
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-14.ece.iastate.edu",
+            blindsPos: -1
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-15.ece.iastate.edu",
+            blindsPos: -1
+        }]);
 
     //tlaBlinds: values from database and saved in redux
     //manualBlinds: array that interacts with sliders in browser
 
-    const sliderUpdated = (value, id) => {
-        setManualBlinds([...manualBlinds.slice(0, id), value, ...manualBlinds.slice(id + 1)]);
+    //Alternatively,
+    //browserBlinds: values to be updated from database (and includes -1 )
+
+    useEffect(() => {
+        getBlinds();
+    }, []);
+
+    useEffect(() => {
+        console.log("Browser Blinds");
+        console.log(browserBlinds);
+    }, [browserBlinds]);
+
+    useEffect(() => {
+        console.log("Changed Blinds");
+        console.log(changedBlinds);
+    }, [changedBlinds]);
+
+
+    const getBlinds = () => {
+        fetch('http://sddec22-11.ece.iastate.edu:8080/blinds')
+            .then(response => response.json())
+            .then(data => {
+                setBrowserBlinds(browserBlinds.map((blind) => {
+                    const blindBeingUpdated = data.find(temp => temp.blindsIP == blind.blindsIP);
+                    if (blindBeingUpdated) {
+                        return blindBeingUpdated;
+                    }
+                    else {
+                        return {
+                            blindsId: -1,
+                            blindsIP: blind.blindsIP,
+                            blindsPos: -1
+                        }
+                    }
+                }));
+            });
     }
 
-    const [inTla, setInTla] = useState(false);
+    const applyPreset = (value) => {
+        setChangedBlinds([...(changedBlinds.map((blind) => {
+            if (blind.blindsPos == value) {
+                return null; //remove from changedBlinds map
+            }
+            else {
+                //update the changed Blind 
+                return {
+                    blindsIP: blind.blindsIP,
+                    blindsPos: value
+                }
+            }
+        }).filter(element => {
+            return element !== null;
+        })),
+        ...(browserBlinds.map((blind) => {
+            if (blind.blindsPos == -1) {
+                return null; //don't add to changedBlinds map
+            }
+            else if (blind.blindsPos == value) {
+                return null; //don't add to changedBlinds map
+            }
+            else {
+                //update the changed Blind 
+                return {
+                    blindsIP: blind.blindsIP,
+                    blindsPos: value
+                }
+            }
+        }).filter(element => {
+            return element !== null;
+        }))]);
+
+    }
+
+    const updateBlinds = () => {
+        const requestOptions = {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ blinds: changedBlinds })
+        };
+        fetch('http://sddec22-11.ece.iastate.edu:8080/blindsMove', requestOptions) //TODO
+            .then(response => {
+                if (response.status == 200) {
+                    setChangedBlinds([]);
+                    getBlinds();
+                }
+                else {
+                    toast({
+                        title: 'Error ' + response.status,
+                        description: "Please try again",
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    })
+                    getBlinds();
+                }
+            });
+    }
+
+    const sliderUpdated = (value, id) => {
+        let found = false;
+
+        //iterate thru changedBlinds to update
+        setChangedBlinds(changedBlinds.map(changedBlind => {
+            if (changedBlind.blindsIP == "sddec22-11-" + (id + 1) + ".ece.iastate.edu") {
+                //Already in the changed list
+                found = true;
+
+                //But wait, did they change it back to match the original position?
+                const revertedBlind = browserBlinds.find(browserBlind => browserBlind.blindsIP == changedBlind.blindsIP
+                    && browserBlind.blindsPos == value);
+                if (revertedBlind) {
+                    //remove from changed
+                    console.log("Removed from Changed list");
+                    return null; //will be cleaned up by filter
+                }
+                else {
+                    return {
+                        blindsIP: changedBlind.blindsIP,
+                        blindsPos: value
+                    };
+                }
+            }
+            return changedBlind;
+        }).filter(element => {
+            return element !== null;
+        }
+        ));
+
+        if (found == false) {
+            // Not found in changedBlinds list
+
+            const newChangedBlind = {
+                blindsIP: "sddec22-11-" + (id + 1) + ".ece.iastate.edu",
+                blindsPos: value
+            }
+
+            const revertedBlind = browserBlinds.find(browserBlind => browserBlind.blindsIP == newChangedBlind.blindsIP
+                && browserBlind.blindsPos == newChangedBlind.value);
+            if (revertedBlind) {
+                console.log("No action taken, slider was slid back to original position.");
+            }
+            else {
+                console.log("Added to Changed List")
+                setChangedBlinds([...changedBlinds, newChangedBlind]);
+            }
+        }
+
+
+
+        //setManualBlinds([...manualBlinds.slice(0, id), value, ...manualBlinds.slice(id + 1)]);
+    }
+
+    const [inTla, setInTla] = useState(true);
     //0 is manual, 1 is closed, 2 is dim, 3 is open
 
     mapboxgl.accessToken = process.env.MAPBOX_TOKEN;
@@ -87,8 +320,8 @@ const TLA = () => {
 
     function checkPos(position) {
         const { latitude, longitude } = position.coords;
-        const inTla = bounds.contains([longitude, latitude]);
-        setInTla(inTla);
+
+        setInTla(true);//bounds.contains([longitude, latitude]);
         if (inTla) {
             console.log("in tla");
         }
@@ -99,87 +332,10 @@ const TLA = () => {
 
     navigator.geolocation.watchPosition(checkPos); //continuosly check user position
 
-
-    useEffect(() => {
-        setWindowSize(window.outerWidth);
-        let resize = function () { setWindowSize(window.outerWidth) };
-        window.addEventListener('resize', resize, false);
-        return (() => {
-            window.removeEventListener('resize', resize, false);
-        });
-    }, [windowSize]);
-
-    useEffect(() => {
-        setUpdated(updated);
-    }, [updated]);
-
-    useEffect(() => {
-        console.log("Manual Blinds");
-        console.log(manualBlinds);
-        setClosedConfirmation(false);
-        setDimConfirmation(false);
-        setOpenConfirmation(false);
-        for (let i = 0; i < 15; i++) {
-            if (manualBlinds[i] != tlaBlinds[i].blindsPos) {
-                setUpdated(true);
-                return;
-            }
-        }
-        setUpdated(false);
-    }, [manualBlinds]);
-
-    useEffect(() => {
-        setManualBlinds(tlaBlinds.map(blind => {
-            return blind.blindsPos;
-        }));
-    }, [tlaBlinds]);
-
-    useEffect(() => {
-        getChanges();
-    }, []); //UNCOMMENT, this gets values from database
-
-    const applyChanges = (blindArray) => {
-        console.log("Changes Applied");
-        const updatedBlindArray = tlaBlinds.map(blind => {
-            const id = blind.blindsIP.split("sddec22-11-")[1].split(".ece.iastate.edu")[0];
-            // ^ Isolate the number out of the IP address (Expected format: sddec22-11-{#}.ece.iastate.edu)
-            if ((blindArray[id - 1] != null) && blindArray[id - 1] != blind.blindsPos) {
-                const updatedBlind =
-                {
-                    "blindsIP": "sddec22-11-" + (id) + ".ece.iastate.edu",
-                    "blindsPos": (blindArray[id - 1])
-                };
-                return updatedBlind;
-            }
-        });
-        const reducedBlindArray = updatedBlindArray.filter(blind => {
-            if (blind != null) {
-                return blind;
-            }
-        });
-
-        const requestOptions = {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ blinds: reducedBlindArray })
-        };
-        fetch('http://sddec22-11.ece.iastate.edu:8080/blindsMove', requestOptions) //TODO
-            //.then(response => response.json())
-            .then(getChanges()); //should getChange be in "then"?
-
-    }
-
-    const getChanges = () => {
-        // GET request using fetch inside useEffect React hook
-        fetch('http://sddec22-11.ece.iastate.edu:8080/blinds')
-            .then(response => response.json())
-            .then(data => dispatch(updateBlinds(data)));
-    }
-
     const rowColumn = useBreakpointValue({ base: 'row', md: 'column' });
     const smallMedium = useBreakpointValue({ base: 'sm', md: 'md' });
 
-    const phone = windowSize < 768; //number should be adjusted
+    const phone = false; // windowSize < 768; //number should be adjusted
     let lastSpacer = phone ? <></> : <Spacer />;
 
     return (
@@ -199,19 +355,21 @@ const TLA = () => {
                                     <Spacer />
                                     <Button my="5px" w="110px" variant="solid" size={smallMedium}
                                         bg="gray.900" _hover={{ bg: "gray.700" }} _active={{ bg: "gray.800" }} leftIcon={<Icon as={FaMoon} color="yellow.200" />}
-                                        disabled={preset == 1}
+                                        disabled={!closedConfirmation && preset == 1}
                                         onClick={() => {
                                             if (closedConfirmation) {
-                                                setPreset(1);
-                                                dispatch(updateBlinds([10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]));
-                                                applyChanges([10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]);
-                                                setManualBlinds([10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]);
+                                                // dispatch(updateBlinds([10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]));
+                                                // applyChanges([10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]);
+                                                // setManualBlinds([10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]);
                                                 setClosedConfirmation(false);
+                                                updateBlinds();
                                             }
                                             else {
                                                 setClosedConfirmation(true);
                                                 setDimConfirmation(false);
                                                 setOpenConfirmation(false);
+                                                applyPreset(1);
+                                                setPreset(1);
                                             }
                                         }}
                                     >
@@ -222,19 +380,22 @@ const TLA = () => {
                                     <Spacer />
                                     <Button my="5px" w="110px" variant="solid" size={smallMedium}
                                         bg="gray.600" _hover={{ bg: "gray.500" }} _active={{ bg: "gray.400" }} leftIcon={<Icon as={FaCloud} color="gray.300" />}
-                                        disabled={preset == 2}
+                                        disabled={!dimConfirmation && preset == 2}
                                         onClick={() => {
                                             if (dimConfirmation) {
-                                                setPreset(2)
-                                                dispatch(updateBlinds([40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40]));
-                                                applyChanges([40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40]);
-                                                setManualBlinds([40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40]);
+
+                                                // dispatch(updateBlinds([40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40]));
+                                                // applyChanges([40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40]);
+                                                // setManualBlinds([40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40]);
                                                 setDimConfirmation(false);
+                                                updateBlinds();
                                             }
                                             else {
                                                 setClosedConfirmation(false);
                                                 setDimConfirmation(true);
                                                 setOpenConfirmation(false);
+                                                applyPreset(4);
+                                                setPreset(2);
                                             }
                                         }}>
                                         <Text color="white">
@@ -244,19 +405,22 @@ const TLA = () => {
                                     <Spacer />
                                     <Button my="5px" w="110px" variant="solid" size={smallMedium}
                                         bg="gray.50" _hover={{ bg: "gray.200" }} _active={{ bg: "gray.100" }} leftIcon={<Icon as={FaSun} color="yellow.500" />}
-                                        disabled={preset == 3}
+                                        disabled={!openConfirmation && preset == 3}
                                         onClick={() => {
                                             if (openConfirmation) {
-                                                setPreset(3)
-                                                dispatch(updateBlinds([60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60,]));
-                                                applyChanges([60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]);
-                                                setManualBlinds([60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]);
+
+                                                // dispatch(updateBlinds([60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60,]));
+                                                // applyChanges([60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]);
+                                                // setManualBlinds([60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60]);
                                                 setOpenConfirmation(false);
+                                                updateBlinds();
                                             }
                                             else {
                                                 setClosedConfirmation(false);
                                                 setDimConfirmation(false);
                                                 setOpenConfirmation(true);
+                                                applyPreset(6);
+                                                setPreset(3)
                                             }
                                         }}>
                                         <Text color="black">
@@ -274,34 +438,32 @@ const TLA = () => {
                                     direction={phone ? "column" : "row"}
                                     alignItems="center" pb="30px">
                                     <Spacer />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[0] ? tlaBlinds[0].blindsPos : 0)} id={0} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[1] ? tlaBlinds[1].blindsPos : 0)} id={1} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[2] ? tlaBlinds[2].blindsPos : 0)} id={2} /><Spacer />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[3] ? tlaBlinds[3].blindsPos : 0)} id={3} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[4] ? tlaBlinds[4].blindsPos : 0)} id={4} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[5] ? tlaBlinds[5].blindsPos : 0)} id={5} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[6] ? tlaBlinds[6].blindsPos : 0)} id={6} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[7] ? tlaBlinds[7].blindsPos : 0)} id={7} /><Spacer />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[8] ? tlaBlinds[8].blindsPos : 0)} id={8} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[9] ? tlaBlinds[9].blindsPos : 0)} id={9} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[10] ? tlaBlinds[10].blindsPos : 0)} id={10} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[11] ? tlaBlinds[11].blindsPos : 0)} id={11} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[12] ? tlaBlinds[12].blindsPos : 0)} id={12} /><Spacer />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[13] ? tlaBlinds[13].blindsPos : 0)} id={13} />
-                                    <BlindSlider phone={phone} updateVar={sliderUpdated} TLAvalue={(tlaBlinds[14] ? tlaBlinds[14].blindsPos : 0)} id={14} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} initVal={browserBlinds} preset={preset} id={0} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} initVal={browserBlinds} preset={preset} id={1} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} initVal={browserBlinds} preset={preset} id={2} /><Spacer />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} initVal={browserBlinds} preset={preset} id={3} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} initVal={browserBlinds} preset={preset} id={4} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} initVal={browserBlinds} preset={preset} id={5} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} initVal={browserBlinds} preset={preset} id={6} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} initVal={browserBlinds} preset={preset} id={7} /><Spacer />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} initVal={browserBlinds} preset={preset} id={8} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} initVal={browserBlinds} preset={preset} id={9} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} initVal={browserBlinds} preset={preset} id={10} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} initVal={browserBlinds} preset={preset} id={11} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} initVal={browserBlinds} preset={preset} id={12} /><Spacer />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} initVal={browserBlinds} preset={preset} id={13} />
+                                    <BlindSlider phone={phone} updateVar={sliderUpdated} initVal={browserBlinds} preset={preset} id={14} />
                                     {lastSpacer}
                                 </Flex>
                                 <Button alignSelf="flex-end" right="30px" bottom="15px" my="5px" w="100px" h="40px" variant="solid" title={inTla ? "" : "Must be in TLA"}
-                                    bg="orange.400" _hover={{ bg: "orange.500" }} _active={{ bg: "orange.600" }} disabled={!updated || !inTla}
+                                    bg="orange.400" _hover={{ bg: "orange.500" }} _active={{ bg: "orange.600" }} disabled={!changedBlinds.length || !inTla}
                                     /* leftIcon={<Icon as={FaSun} color="yellow.500" />} */
                                     onClick={() => {
-                                        setUpdated(false);
                                         setPreset(0);
-                                        dispatch(updateBlinds(manualBlinds));
-                                        applyChanges(manualBlinds);
                                         setClosedConfirmation(false);
                                         setDimConfirmation(false);
                                         setOpenConfirmation(false);
+                                        updateBlinds();
                                     }}
                                 >
                                     <Text color="black">

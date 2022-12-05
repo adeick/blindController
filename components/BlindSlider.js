@@ -18,12 +18,30 @@ import { useState, useEffect } from 'react';
 const BlindSlider = (props) => {
     //This variable is for ALL sliders, not just this component
     // const [updated, setUpdated] = useState(updateVar);
-    const [sliderValue, setSliderValue] = useState(props.TLAvalue);
+    const [sliderValue, setSliderValue] = useState(props.initVal[props.id].blindsPos);
     const [updated, setUpdated] = useState(false);
 
     useEffect(() => {
-        setSliderValue(props.TLAvalue);
-    }, [props.TLAvalue]);
+        setSliderValue(props.initVal[props.id].blindsPos);
+        // console.log(props.initVal[props.id].blindsPos);
+    }, [props.initVal]);
+
+    useEffect(() => {
+        if (props.initVal[props.id].blindsPos == -1 || props.preset == 0) {
+            setSliderValue(props.initVal[props.id].blindsPos);
+        }
+        else if (props.preset == 1) {
+            setSliderValue(1);
+        }
+        else if (props.preset == 2) {
+            setSliderValue(4);
+        }
+        else if (props.preset == 3) {
+            setSliderValue(6);
+        }
+
+        // console.log(props.initVal[props.id].blindsPos);
+    }, [props.preset]);
 
     let icon;
     if (sliderValue < 3.0 || sliderValue > 8) {
@@ -77,6 +95,7 @@ const BlindSlider = (props) => {
                 aria-label='slider-ex-3'
                 min={0} max={9}
                 //defaultValue={sliderValue}
+                disabled={sliderValue == -1}
                 value={sliderValue}
                 orientation={props.phone ? 'horizontal' : 'vertical'}
                 minH={props.phone ? "40px" : '100px'}
@@ -89,7 +108,7 @@ const BlindSlider = (props) => {
             >
                 {firstSlider}
                 <SliderTrack bg='red.100'>
-                    <SliderFilledTrack bg={sliderValue == props.TLAvalue ? 'yellow.500' : 'orange.400'} />
+                    <SliderFilledTrack bg={sliderValue == props.initVal[props.id].blindsPos ? 'yellow.500' : 'orange.400'} />
                 </SliderTrack>
                 {icon}
 

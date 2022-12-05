@@ -1,4 +1,4 @@
-import { UPDATE_BLINDS } from "./type";
+import { UPDATE_BLINDS, DELETE_BLINDS } from "./type";
 
 // export const updateBlinds = (blindArray) => (dispatch) => {
 
@@ -8,11 +8,17 @@ import { UPDATE_BLINDS } from "./type";
 //     });
 // };
 
-const updateBlinds = (blindArray) => {
+export const updateBlinds = (blindArray) => {
     return {
         type: UPDATE_BLINDS,
         payload: blindArray
     };
 }
 
-export default updateBlinds;
+export const deleteBlinds = (blindArray) => {
+    return {
+        type: DELETE_BLINDS,
+        payload: blindArray
+    };
+}
+

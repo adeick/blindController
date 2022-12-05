@@ -3,7 +3,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test": "jest"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.1.7",
@@ -24,5 +25,8 @@
     "redux-devtools-extension": "^2.13.9",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.4.1"
+  },
+  "devDependencies": {
+    "jest": "^29.3.1"
   }
 }

@@ -43,7 +43,7 @@ const NavBar = (props) => {
     let profileName = <></>;
 
     if (session) {
-        profileImage = <Image borderRadius='full' boxSize="35px" src={session.user.image} alt={session.user.name} />;
+        profileImage = <Image borderRadius='full' boxSize="35px" src={session.user.image} alt={session.user.name} sx={{ referrerpolicy: "no-referrer" }} />;
         button =
             <Button ml="20px" mr="10%" h="45px" onClick={() => signOut()}>
                 <Text>
