@@ -150,7 +150,7 @@ const Admin = () => {
 
     const getAdmin = () => {
         // GET request using fetch inside useEffect React hook
-        fetch('http://sddec22-11.ece.iastate.edu:8080/getAdmins')
+        fetch('https://sddec22-11.ece.iastate.edu/getAdmins')
             .then(response => response.json())
             .then(data => setAdminList(data));
     }
@@ -180,7 +180,7 @@ const Admin = () => {
     }
 
     const getBlinds = () => {
-        fetch('http://sddec22-11.ece.iastate.edu:8080/blinds')
+        fetch('https://sddec22-11.ece.iastate.edu/blinds')
             .then(response => response.json())
             .then(data => {
                 console.log(data);
@@ -211,7 +211,7 @@ const Admin = () => {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ "blindsIP": newBlindIP })
                     };
-                    fetch('http://sddec22-11.ece.iastate.edu:8080/addBlind', requestOptions)
+                    fetch('https://sddec22-11.ece.iastate.edu/addBlind', requestOptions)
                         .then(response => response.json())
                         .then(data => {
                             setActiveBlindList([...activeBlindList, data]);
@@ -219,7 +219,7 @@ const Admin = () => {
                 }
                 if (deleteFlag) {
                     deleteFlag = false;
-                    const fetchString = "http://sddec22-11.ece.iastate.edu:8080/blinds/" + (data[data.length - 1].blindsId);
+                    const fetchString = "https://sddec22-11.ece.iastate.edu/blinds/" + (data[data.length - 1].blindsId);
 
                     const requestOptions = {
                         method: 'DELETE',

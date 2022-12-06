@@ -175,7 +175,7 @@ const TLA = () => {
 
 
     const getBlinds = () => {
-        fetch('http://sddec22-11.ece.iastate.edu:8080/blinds')
+        fetch('https://sddec22-11.ece.iastate.edu/blinds')
             .then(response => response.json())
             .then(data => {
                 setBrowserBlinds(browserBlinds.map((blind) => {
@@ -235,7 +235,7 @@ const TLA = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ blinds: changedBlinds })
         };
-        fetch('http://sddec22-11.ece.iastate.edu:8080/blindsMove', requestOptions) //TODO
+        fetch('https://sddec22-11.ece.iastate.edu/blindsMove', requestOptions) //TODO
             .then(response => {
                 if (response.status == 200) {
                     setChangedBlinds([]);
@@ -308,7 +308,7 @@ const TLA = () => {
         //setManualBlinds([...manualBlinds.slice(0, id), value, ...manualBlinds.slice(id + 1)]);
     }
 
-    const [inTla, setInTla] = useState(true);
+    const [inTla, setInTla] = useState(false);
     //0 is manual, 1 is closed, 2 is dim, 3 is open
 
     mapboxgl.accessToken = process.env.MAPBOX_TOKEN;
@@ -321,7 +321,7 @@ const TLA = () => {
     function checkPos(position) {
         const { latitude, longitude } = position.coords;
 
-        setInTla(true);//bounds.contains([longitude, latitude]);
+        setInTla(true);//bounds.contains([longitude, latitude]));
         if (inTla) {
             console.log("in tla");
         }
@@ -347,6 +347,9 @@ const TLA = () => {
                         'linear-gradient(to-t, orange.900 0%, #4d1215 33%, gray.900 83%, #0c0d12 100%)')}
                         h={phone ? "170vh" : "130vh"} w="100%" mt="6vh" pt="5vh">
                         <VStack spacing="5vh" w="100%">
+                            <Text as="b" fontSize={["32px", "32px", "48px", "64px"]} align="center" maxWidth={["85vw", "55vw"]}>
+                                <Text as="b" color={useColorModeValue("orange.400", "orange.300")}>Twist </Text> the Blinds!
+                            </Text>
                             <Flex bg={preset == 0 ? 'orange.200' : 'orange.300'} h="25vh" w="80vw" py="3vh" pr="80px" pl="30px" borderRadius="15px" direction={rowColumn}>
                                 <Text color="black" as="b" mb={phone ? "1vh" : "6vh"} position="absolute">
                                     Presets
