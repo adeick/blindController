@@ -160,6 +160,15 @@ const TLA = () => {
     //browserBlinds: values to be updated from database (and includes -1 )
 
     useEffect(() => {
+        setWindowSize(window.outerWidth);
+        let resize = function () { setWindowSize(window.outerWidth) };
+        window.addEventListener('resize', resize, false);
+        return (() => {
+            window.removeEventListener('resize', resize, false);
+        });
+    }, [windowSize]);
+
+    useEffect(() => {
         getBlinds();
     }, []);
 
@@ -329,13 +338,15 @@ const TLA = () => {
             console.log("not in tla");
         }
     }
-
+    // alert("This application is only available for use in the TLA lab." +
+    //     " Please enable your location.");
     navigator.geolocation.watchPosition(checkPos); //continuosly check user position
 
     const rowColumn = useBreakpointValue({ base: 'row', md: 'column' });
     const smallMedium = useBreakpointValue({ base: 'sm', md: 'md' });
 
-    const phone = false; // windowSize < 768; //number should be adjusted
+    const phone = windowSize < 768; //number should be adjusted
+    console.log("Window: " + windowSize);
     let lastSpacer = phone ? <></> : <Spacer />;
 
     return (

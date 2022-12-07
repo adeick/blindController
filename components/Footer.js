@@ -32,8 +32,8 @@ const Footer = (props) => {
                     Proudly made by SD Team 11
                 </Text>
                 <HStack>
-                    <IconButton size="sm" target="_blank" as="a" mx="10px" variant={useColorModeValue("link", "solid")} fontSize="20px" icon={<FiGitlab />} href="https://git.ece.iastate.edu/sd/sddec22-11" aria-label="GitLab" />
-                    <IconButton size="sm" target="_blank" as="a" mx="10px" variant={useColorModeValue("link", "solid")} fontSize="20px" icon={<BsGlobe2 />} href="https://sddec22-11.sd.ece.iastate.edu/" aria-label="GitLab" />
+                    <IconButton size="sm" target="_blank" as="a" mx="10px" variant={useColorModeValue("link", "solid")} fontSize="20px" icon={<FiGitlab />} href="https://git.ece.iastate.edu/sd/sddec22-11" aria-label="GitLab" data-cy="gitlab" />
+                    <IconButton size="sm" target="_blank" as="a" mx="10px" variant={useColorModeValue("link", "solid")} fontSize="20px" icon={<BsGlobe2 />} href="https://sddec22-11.sd.ece.iastate.edu/" aria-label="Senior Design" data-cy="sd" />
                 </HStack>
             </Flex>
         </>

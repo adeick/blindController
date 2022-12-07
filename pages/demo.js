@@ -87,6 +87,89 @@ const Demo = () => {
     const phone = windowSize < 768; //number should be adjusted
     let lastSpacer = phone ? <></> : <Spacer />;
 
+    const [demoBlindArray, setDemoBlindArray] = useState([
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-1.ece.iastate.edu",
+            blindsPos: 5
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-2.ece.iastate.edu",
+            blindsPos: 5
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-3.ece.iastate.edu",
+            blindsPos: 5
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-4.ece.iastate.edu",
+            blindsPos: 5
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-5.ece.iastate.edu",
+            blindsPos: 5
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-6.ece.iastate.edu",
+            blindsPos: 5
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-7.ece.iastate.edu",
+            blindsPos: 5
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-8.ece.iastate.edu",
+            blindsPos: 5
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-9.ece.iastate.edu",
+            blindsPos: 5
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-10.ece.iastate.edu",
+            blindsPos: 5
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-11.ece.iastate.edu",
+            blindsPos: 5
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-12.ece.iastate.edu",
+            blindsPos: 5
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-13.ece.iastate.edu",
+            blindsPos: 5
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-14.ece.iastate.edu",
+            blindsPos: 5
+        },
+        {
+            blindsId: -1,
+            blindsIP: "sddec22-11-15.ece.iastate.edu",
+            blindsPos: 5
+        }]);
+
+    const changeDemo = (sliderValue, id) => {
+        setDemoBlindArray([...(demoBlindArray.slice(0, id)),
+        { blindsId: -1, blindsIP: demoBlindArray[id].blindsIP, blindsPos: sliderValue },
+        ...(demoBlindArray.slice(id + 1))]);
+    }
+
     return (
         <div id="Demo">
             <NavBar page="Transformative Learning Area (TLA)" shortPage="TLA" />
@@ -138,25 +221,21 @@ const Demo = () => {
                             direction={phone ? "column" : "row"}
                             alignItems="center" pb="30px">
                             <Spacer />
-                            <BlindSlider phone={phone} updateVar={setUpdated} />
-                            <BlindSlider phone={phone} updateVar={setUpdated} />
-                            <BlindSlider phone={phone} updateVar={setUpdated} />
-                            <Spacer />
-                            <BlindSlider phone={phone} updateVar={setUpdated} />
-                            <BlindSlider phone={phone} updateVar={setUpdated} />
-                            <BlindSlider phone={phone} updateVar={setUpdated} />
-                            <Spacer />
-                            <BlindSlider phone={phone} updateVar={setUpdated} />
-                            <BlindSlider phone={phone} updateVar={setUpdated} />
-                            <BlindSlider phone={phone} updateVar={setUpdated} />
-                            <Spacer />
-                            <BlindSlider phone={phone} updateVar={setUpdated} />
-                            <BlindSlider phone={phone} updateVar={setUpdated} />
-                            <BlindSlider phone={phone} updateVar={setUpdated} />
-                            <Spacer />
-                            <BlindSlider phone={phone} updateVar={setUpdated} />
-                            <BlindSlider phone={phone} updateVar={setUpdated} />
-                            <BlindSlider phone={phone} updateVar={setUpdated} />
+                            <BlindSlider phone={phone} initVal={demoBlindArray} updateVar={changeDemo} id={0} />
+                            <BlindSlider phone={phone} initVal={demoBlindArray} updateVar={changeDemo} id={1} />
+                            <BlindSlider phone={phone} initVal={demoBlindArray} updateVar={changeDemo} id={2} /><Spacer />
+                            <BlindSlider phone={phone} initVal={demoBlindArray} updateVar={changeDemo} id={3} />
+                            <BlindSlider phone={phone} initVal={demoBlindArray} updateVar={changeDemo} id={4} />
+                            <BlindSlider phone={phone} initVal={demoBlindArray} updateVar={changeDemo} id={5} /><Spacer />
+                            <BlindSlider phone={phone} initVal={demoBlindArray} updateVar={changeDemo} id={6} />
+                            <BlindSlider phone={phone} initVal={demoBlindArray} updateVar={changeDemo} id={7} />
+                            <BlindSlider phone={phone} initVal={demoBlindArray} updateVar={changeDemo} id={8} /><Spacer />
+                            <BlindSlider phone={phone} initVal={demoBlindArray} updateVar={changeDemo} id={9} />
+                            <BlindSlider phone={phone} initVal={demoBlindArray} updateVar={changeDemo} id={10} />
+                            <BlindSlider phone={phone} initVal={demoBlindArray} updateVar={changeDemo} id={11} /><Spacer />
+                            <BlindSlider phone={phone} initVal={demoBlindArray} updateVar={changeDemo} id={12} />
+                            <BlindSlider phone={phone} initVal={demoBlindArray} updateVar={changeDemo} id={13} />
+                            <BlindSlider phone={phone} initVal={demoBlindArray} updateVar={changeDemo} id={14} />
                             {lastSpacer}
                         </Flex>
                         <Button alignSelf="flex-end" right="30px" bottom="15px" my="5px" w="80px" h="40px" variant="solid"

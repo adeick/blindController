@@ -46,7 +46,7 @@ const BlindSlider = (props) => {
     let icon;
     if (sliderValue < 3.0 || sliderValue > 8) {
         icon =
-            <SliderThumb bg="gray.700" boxSize={6}>
+            <SliderThumb bg="gray.700" boxSize={6} data-cy={"sliderThumb" + props.id}>
                 <Box
                     color="yellow"
                     as={FaMoon}
@@ -55,7 +55,7 @@ const BlindSlider = (props) => {
     }
     else if (sliderValue < 4.5 || sliderValue > 7.0) {
         icon =
-            <SliderThumb bg="gray.600" boxSize={6}>
+            <SliderThumb bg="gray.600" boxSize={6} data-cy={"sliderThumb" + props.id}>
                 <Box
                     color="gray.300"
                     as={FaCloud}
@@ -64,7 +64,7 @@ const BlindSlider = (props) => {
     }
     else {
         icon =
-            <SliderThumb bg="gray.200" boxSize={6}>
+            <SliderThumb bg="gray.200" boxSize={6} data-cy={"sliderThumb" + props.id}>
                 <Box
                     color="orange"
                     as={FaSun}
