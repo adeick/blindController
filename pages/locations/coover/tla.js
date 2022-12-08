@@ -356,7 +356,7 @@ const TLA = () => {
                     <NavBar page="Transformative Learning Area (TLA)" shortPage="TLA" />
                     <Flex bgGradient={useColorModeValue('linear-gradient(to-t, orange.300 0%, orange.200 33%, blue.100 83%, blue.200 100%)',
                         'linear-gradient(to-t, orange.900 0%, #4d1215 33%, gray.900 83%, #0c0d12 100%)')}
-                        h={phone ? "170vh" : "130vh"} w="100%" mt="6vh" pt="5vh">
+                        h={phone ? "200vh" : "130vh"} w="100%" mt="6vh" pt="5vh">
                         <VStack spacing="5vh" w="100%">
                             <Text as="b" fontSize={["32px", "32px", "48px", "64px"]} align="center" maxWidth={["85vw", "55vw"]}>
                                 <Text as="b" color={useColorModeValue("orange.400", "orange.300")}>Twist </Text> the Blinds!
